@@ -14,13 +14,13 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center mb-3 fw-bold">短期檔案上傳 + QR Code</h1>
-        <form id="uploadForm" class="row justify-content-center mb-3">
+        <h1 class="text-center mb-3 fw-bold">QR Code 產生器</h1>
+        <form id="qrForm" class="row justify-content-center mb-3">
             <div class="col-18 col-lg-8">
-                <input type="file" id="fileInput" class="form-control" required>
+                <input id="input_url" class="form-control" placeholder="請在此輸入或貼上網址" required>
             </div>
             <div class="col-6 col-lg-2">
-                <button type="submit" class="w-100 btn btn-primary">上傳</button>
+                <button type="submit" class="w-100 btn btn-primary">產生</button>
             </div>
         </form>
         <div class="row justify-content-center mb-3">
@@ -31,8 +31,8 @@
         <div class="row justify-content-center">
             <div class="col-24">
                 <p class="text-center">
-                    手動輸入連結？
-                    <a href="qrcode.html" class="noDeco">點這裡！</a>
+                    上傳檔案？
+                    <a href="index.html" class="noDeco">點這裡！</a>
                 </p>
             </div>
         </div>
@@ -47,35 +47,13 @@
 </body>
 
 <script>
-var _url = "";
-$(document).ready(function() {
-    $("#uploadForm").on("submit", function(e) {
-        $("#uploading").show();
-
-        e.preventDefault();
-        var formData = new FormData();
-        var fileInput = $("#fileInput")[0].files[0]; // 取得選取的檔案
-        formData.append("file", fileInput);
-
-        $.ajax({
-            url: "https://tmpfiles.org/api/v1/upload",
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                _url = response.data.url;
-                $("#uploading").hide();
-                $("#qrcode").attr("src","https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + _url.replace("https://tmpfiles.org/", "https://tmpfiles.org/dl/"));
-            },
-            error: function(xhr, status, error) {
-                console.error("[上傳失敗] ", error);
-                alert("上傳失敗，錯誤：" + error);
-                $("#uploading").hide();
-            }
-        });
-    });
-});
+    $(document).ready(function() {
+        $("#qrForm").on("submit", function(e) {
+            e.preventDefault();
+            _url = $("#input_url").val();
+            $("#qrcode").attr("src","https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + _url);
+        }
+    )});
 </script>
 
 <style>
