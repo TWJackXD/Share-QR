@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>短期檔案上傳 + QR Code</title>
+
+    <link rel="stylesheet" href="/assets/style.css">
+    <link rel="stylesheet" href="/assets/bootstrap.css">
+    <script src="/assets/jquery-3.7.1.min.js"></script>
+    <script src="/assets/bootstrap.bundle.min.js"></script>
+
+    <meta name="robots" content="noindex, nofollow">
+</head>
+<body>
+    <div class="container">
+
+        <h1 class="text-center mb-3 fw-bold">短期檔案上傳 + QR Code</h1>
+        <form id="uploadForm" class="row justify-content-center mb-3">
+            <div class="col-18 col-lg-8">
+                <input type="file" id="fileInput" class="form-control" required>
+            </div>
+            <div class="col-6 col-lg-2">
+                <button type="submit" class="w-100 btn btn-primary">上傳</button>
+            </div>
+        </form>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-8">
+                <img src="https://placehold.co/150x150" alt="QR-Code" class="w-100" id="qrcode">
+            </div>
+        </div>
+    </div>
+
+    <div id="uploading">
+        <div class="text">
+            <div class="spinner-border text-dark" role="status"></div>
+            <span>檔案上傳中，請稍後......</span>
+        </div>
+    </div>
+</body>
+
+<script>
+var _url = "";
+$(document).ready(function() {
+    $("#uploadForm").on("submit", function(e) {
+        $("#uploading").show();
+
+        e.preventDefault();
+        var formData = new FormData();
+        var fileInput = $("#fileInput")[0].files[0]; // 取得選取的檔案
+        formData.append("file", fileInput);
+
+        $.ajax({
+            url: "https://tmpfiles.org/api/v1/upload",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                _url = response.data.url;
+                $("#uploading").hide();
+                $("#qrcode").attr("src","https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + _url.replace("https://tmpfiles.org/", "https://tmpfiles.org/dl/"));
+            },
+            error: function(xhr, status, error) {
+                console.error("[上傳失敗] ", error);
+                alert("上傳失敗，錯誤：" + error);
+                $("#uploading").hide();
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.container{
+    padding: 6rem 0;
+}
+#uploading{
+    display: none;
+    top: 0;
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+    background-color: #96969670;
+}
+#uploading .text{
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    gap: 10px;
+}
+</style>
+</html>
